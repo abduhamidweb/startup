@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
         status: 200,
     })
 });
-
+ 
 
 // file size
 
