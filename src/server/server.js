@@ -19,14 +19,14 @@ app.use(fileUpload({
     }
 }));
 // All routes
-app.use('/api', indexRouter);
+app.use(indexRouter);
 app.get('/', (req, res) => {
     res.send({
         message: "Welcome to Express",
         status: 200,
     })
 });
-
+ 
 
 // file size
 
