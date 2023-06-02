@@ -5,7 +5,7 @@ import fileUpload from "express-fileupload";
 import cors from "cors";
 import errorMiddleware from "../middleware/errorHandler.js";
 import indexRouter from "../routes/index.routes.js";
-// port 5000 || 3000
+// port 5000 || 3000 
 const PORT = process.env.PORT || 3000;
 // app 
 const app = express();
