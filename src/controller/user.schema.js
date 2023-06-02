@@ -1,8 +1,21 @@
 import {
     User
 } from "../schemas/user.schema.js"
+import {
+    sendConfirmationEmail
+} from "../utils/nodemailer.js";
+import {
+    JWT
+} from './../utils/jwt.js';
+
 class UserController {
     // Create a new user
+    // createUser funksiyasi
+    // createUser funksiyasi
+    // createUser funksiyasi
+    // createUser funksiyasi
+    // createUser funksiyasi
+    // createUser funksiyasi
     static async createUser(req, res) {
         try {
             const {
@@ -11,8 +24,11 @@ class UserController {
                 password,
                 portfolioLink,
                 role,
-                imageLink
+                imageLink,
+                confirmationCode // Foydalanuvchi kiritgan tasdiqlash kodi
             } = req.body;
+
+            // Foydalanuvchi saqlash uchun yangi User obyekti yaratish
             const user = new User({
                 username,
                 email,
@@ -21,11 +37,37 @@ class UserController {
                 role,
                 imageLink
             });
+
+            // Birinchi marta post qilganda foydalanuvchi ma'lumotlarini yuborish
+            if (!confirmationCode) {
+                const generatedConfirmationCode = await sendConfirmationEmail(email);
+                return res.status(200).json({
+                    success: true,
+                    message: "Foydalanuvchi ma'lumotlari yuborildi. Tasdiqlash kodi yuborildi",
+                    confirmationCode: generatedConfirmationCode // Tasdiqlash kodi javob qaytariladi
+                });
+            }
+
+            // Tasdiqlash kodi tekshirish
+            if (confirmationCode !== req.body.confirmationCode) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Noto'g'ri tasdiqlash kodi"
+                });
+            }
+
+            // Tasdiqlangan foydalanuvchini saqlash
             await user.save();
+
+            // Token yaratish va javob qaytarish
             res.status(201).json({
                 success: true,
+                token: JWT.SIGN({
+                    id: user._id
+                }),
                 data: user
             });
+
         } catch (error) {
             res.status(500).json({
                 success: false,
@@ -33,6 +75,7 @@ class UserController {
             });
         }
     }
+
 
     // Get all users
     static async getAllUsers(req, res) {
@@ -77,9 +120,17 @@ class UserController {
     // Update a user by ID
     static async updateUser(req, res) {
         try {
+            const token = req.headers.token;
+            let usertokenId = JWT.VERIFY(token).id
             const userId = req.params.id;
+            if (usertokenId != userId) {
+                res.status(404).json({
+                    success: false,
+                    error: 'you have not authenticated or you will do cheating'
+                });
+            }
             const updatedUserData = req.body;
-            const user = await User.findByIdAndUpdate(userId, updatedUserData, {
+            const user = await User.findByIdAndUpdate(usertokenId, updatedUserData, {
                 new: true
             });
             if (!user) {
@@ -87,6 +138,7 @@ class UserController {
                     success: false,
                     error: 'User not found'
                 });
+                await user.save();
             } else {
                 res.status(200).json({
                     success: true,
@@ -105,16 +157,28 @@ class UserController {
     static async deleteUser(req, res) {
         try {
             const userId = req.params.id;
-            const user = await User.findByIdAndDelete(userId);
-            if (!user) {
+            const token = req.headers.token;
+            let usertokenId = JWT.VERIFY(token).id;
+            const {
+                role
+            } = await User.findById(usertokenId);
+            if (role === 'admin') {
+                const user = await User.findByIdAndDelete(userId);
+                if (!user) {
+                    res.status(404).json({
+                        success: false,
+                        error: 'User not found'
+                    });
+                } else {
+                    res.status(200).json({
+                        success: true,
+                        message: 'User deleted successfully'
+                    });
+                }
+            } else {
                 res.status(404).json({
                     success: false,
-                    error: 'User not found'
-                });
-            } else {
-                res.status(200).json({
-                    success: true,
-                    message: 'User deleted successfully'
+                    error: "faqatgina admin o'chira olishi mumkun userlarni "
                 });
             }
         } catch (error) {
@@ -127,14 +191,14 @@ class UserController {
     static async login(req, res) {
         try {
             const {
-                username,
+                email,
                 password
             } = req.body;
 
             // Foydalanuvchi uchun autentifikatsiya logikasini yozing
-            // Misol uchun, foydalanuvchini usernamedan va passworddan tekshirish:
+            // Misol uchun, foydalanuvchini emaildan va passworddan tekshirish:
             const user = await User.findOne({
-                username
+                email
             });
             if (!user) {
                 res.status(404).json({
@@ -143,8 +207,11 @@ class UserController {
                 });
             } else {
                 if (user.password === password) {
-                    res.status(200).json({
+                    res.status(201).json({
                         success: true,
+                        token: JWT.SIGN({
+                            id: user._id
+                        }),
                         data: user
                     });
                 } else {

@@ -2,6 +2,7 @@ import {
     Router
 } from "express";
 import UserController from "../controller/user.schema.js";
+import authMiddleware from "../middleware/auth.mddl.js";
 
 const router = Router();
 
@@ -16,12 +17,12 @@ router.get('/users', UserController.getAllUsers);
 router.get('/users/:id', UserController.getUser);
 
 // Update a user by ID
-router.put('/users/:id', UserController.updateUser);
+router.put('/users/:id', authMiddleware, UserController.updateUser);
 
 // Delete a user by ID
-router.delete('/users/:id', UserController.deleteUser);
+router.delete('/users/:id', authMiddleware, UserController.deleteUser);
 
 // User login
 router.post('/users/login', UserController.login);
 
-export default userRouter;
+export default router;
