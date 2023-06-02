@@ -6,19 +6,19 @@ import {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'nodirbekqobilov332@gmail.com',
-        pass: 'copzymkjwxzpabah'
+        user: 'codecraftersteeam@gmail.com',
+        pass: 'fglqrzgyvdqfibfd'
     }
 });
 // Elektron pochta yuborish funksiyasi
 export const sendConfirmationEmail = async (userEmail) => {
     const confirmationCode = generateCode(); // Tasdiqlash kodi generatsiyalansin
     const mailOptions = {
-        from: 'nodirbekqobilov332@gmail.com',
+        from: 'codecraftersteeam@gmail.com',
         to: userEmail,
         subject: 'Hi!',
         html: `<h1>
-     Everything is good! <br/>
+      Your password <br/>
      ${confirmationCode}
     </h1>`
     };
