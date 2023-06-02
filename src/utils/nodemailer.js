@@ -16,7 +16,7 @@ export const sendConfirmationEmail = async (userEmail) => {
     const mailOptions = {
         from: 'codecraftersteeam@gmail.com',
         to: userEmail,
-        subject: 'Hi!',
+        subject: 'Hi!', 
         html: `<h1>
       Your password <br/>
      ${confirmationCode}
