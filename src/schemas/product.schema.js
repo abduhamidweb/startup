@@ -1,17 +1,6 @@
 import { Schema, model, Types } from "mongoose";
 
-const technologyArr = [
-  "free",
-  "premiuim",
-  "blog",
-  "boilerplate",
-  "business",
-  "dashboard",
-  "documentation",
-  "ecommerce",
-  "portfolio",
-  "sass",
-];
+
 
 const ProductSchema = new Schema(
   {
@@ -32,12 +21,7 @@ const ProductSchema = new Schema(
       ref: "User",
     },
     category: {
-      type: String,
-      set(value) {
-        if (!technologyArr.includes(value?.toLowerCase())) {
-          throw new Error(`Invalid technology ❌`);
-        }
-      },
+      type: String
     },
     product_link: {
       type: String,
@@ -63,14 +47,5 @@ const ProductSchema = new Schema(
     timestamps: true,
   }
 );
-
-ProductSchema.index({
-  name: "text",
-  technology: "text",
-  price: "text",
-  desc: "text",
-  github_link: "text",
-  product_link: "text",
-});
 
 export default model("products", ProductSchema);
