@@ -19,6 +19,9 @@ class TechnologyController {
       let { name } = req.query;
       if (id) {
         let data = await Technologies.findById(id);
+        if(data == null){
+           throw new Error(`${id} - technology Not Found!`)
+        }
         res.send({
           status: 200,
           message: `${id} - technology products`,
@@ -26,7 +29,10 @@ class TechnologyController {
           data: data,
         });
       } else if (name) {
-        let findByNameCat = await Technologies.findOne({ name });
+        let findByNameCat = await Technologies.findOne({ name  });
+        if(findByNameCat == null){
+          throw new Error(`Qanday Yozilgan bo'lsa shunday filter qiling, katta yoki kichik harifiga ham e'tibor bering, to'liq yozing!`)
+        }
         res.send({
           status: 200,
           message: `${name} - technology products`,
@@ -79,25 +85,29 @@ class TechnologyController {
       if (checkAdmin.role != "admin") {
         throw new Error("Only admin can update!");
       }
+       let findByIdTechnology = await Technologies.findById(req.params.id);
+       if(findByIdTechnology == null){
+        throw new Error(`Not Found ${id} - technology`)
+       }
       if(!name && !img_link){
         throw new Error(`Not Found Target!`)
       }
       let updatedTechnology = await Technologies.findByIdAndUpdate(
-        req.params?.id,
+        req.params.id,
         {
           name,
           img_link,
-        }
+        },
+        {new : true}
       );
+
       console.log(updatedTechnology);
-      if (!updatedTechnology) {
-        throw new Error(`Not Update technology`);
-      }
+    
       res.send({
         status: 200,
         message: `Updated ${id} - technology`,
         success: true,
-        data: await Technologies.findById(req.params?.id),
+        data:updatedTechnology,
       });
     } catch (error) {
       res.send(errorObj(error));
