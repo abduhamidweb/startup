@@ -47,9 +47,6 @@ class ProductController {
           })
           .status(200);
       } else if (req.query?.search)   {
-    
-       const results = await Products.find();
-       console.log('results :', results);
         // results.find({ technology: { $elemMatch: { name: req.query.search } } })
  
         //     // console.log(results);
