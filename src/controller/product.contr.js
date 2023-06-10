@@ -1,6 +1,6 @@
 import { JWT } from "../utils/jwt.js";
 import Products from "../schemas/product.schema.js";
-import Technologies from '../schemas/technology.schema.js'
+import Technologies from "../schemas/technology.schema.js";
 import categoryArr from "../utils/categories.data.js";
 
 const errorObj = (err) => {
@@ -19,7 +19,6 @@ class ProductController {
       let page = Number(req.query.page) || 1;
       let limit = Number(req.query.limit) || 10;
       let skip = (page - 1) * limit;
-      console.log(req.query.search);
       let keyword = req.query.search
         ? {
             $or: [
@@ -46,57 +45,17 @@ class ProductController {
             data: { others, data: dataById },
           })
           .status(200);
-      } else if (req.query?.search)   {
-       
-       // const results = await Products.find().populate('technology');
-        // results.find({ technology: { $elemMatch: { name: req.query.search } } })
- 
-        //     // console.log(results);
-
-
-        
-
-      //   let AllTechnologies = await Products.find();
-      //  let filterByName = AllTechnologies.filter(el=> el.name.toLowerCase().includes(req.query.search));
-      //  console.log(filterByName);
-        
-
-
-      }
-
-      //   .populate("user")
-      //   .sort({ createdAt: -1 });
-      // let filterTech = AllProduct.filter((element) => {
-      //   let is = element.technology.map((el) => {
-      //     if (el.name.includes(req.query.search)) {
-      //       console.log(element);
-      //       return element;
-      //     }
-      //   });
-      //   return is;
-      // });
-
-      // if (filterTech.length) {
-      //   res.send({
-      //     status: 200,
-      //     message: "Search Results",
-      //     success: true,
-      //     data: filterTech,
-      //   });
-      // } else {
-      //   let products = await Products.find(keyword)
-      //     .populate("user")
-      //     .populate("technology")
-      //     .sort({ createdAt: -1 });
-
-      //   res.send({
-      //     status: 200,
-      //     message: "Search Results",
-      //     success: true,
-      //     data: products,
-      //   });
-      // }
-      else if (category) {
+      } else if (req.query?.search) {
+        const results = await Products.find().populate("technology");
+        let searchQuery = req.query.search;
+        const filteredProducts = results.filter((product) => {
+          const technologyNames = product.technology.map((tech) => tech.name);
+          return technologyNames.some((name) =>
+            name.toLowerCase().includes(req.query.search.toLowerCase())
+          );
+        });
+        res.json(filteredProducts);
+      } else if (category) {
         let findByCat = await Products.find({ category })
           .populate("user")
           .populate("technology")
@@ -259,5 +218,4 @@ export default ProductController;
 
 // console.log(findProductById);
 
-
-// console.log(await Technologies.find());  
+// console.log(await Technologies.find());
