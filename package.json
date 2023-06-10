@@ -20,6 +20,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3",
     "nodemailer": "^6.9.1",
+    "redis": "^4.6.7",
     "sha256": "^0.2.0",
     "validator": "^13.9.0"
   }

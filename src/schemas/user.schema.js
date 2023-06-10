@@ -28,13 +28,13 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minlength: 8,
-        validate: {
-            validator: (value) => {
-                return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(value);
-            },
-            message: 'Password must contain at least 8 characters including uppercase, lowercase, and numeric characters'
-        }
+        // minlength: 8,
+    //    validate: {
+    //        validator: (value) => {
+    //            return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(value);
+    //        },
+    //        message: "Parol kamida 8 ta belgidan iborat bo'lishi, raqam va harflarni o'z ichiga olgan kombinatsiyasi bo'lishi kerak."
+    //    }
     },
     portfolioLink: {
         type: String,
@@ -55,6 +55,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
+        default: 'user',
         enum: ['user', 'admin']
     },
     imageLink: {

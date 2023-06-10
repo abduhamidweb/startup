@@ -7,7 +7,10 @@ import {
 import {
     JWT
 } from './../utils/jwt.js';
-
+import sha256 from "sha256";
+import redis from "redis";
+const client = redis.createClient();
+client.connect();
 class UserController {
     // Create a new user
     // createUser funksiyasi
@@ -21,26 +24,17 @@ class UserController {
             const {
                 username,
                 email,
-                password,
                 portfolioLink,
                 role,
                 imageLink,
                 confirmationCode // Foydalanuvchi kiritgan tasdiqlash kodi
             } = req.body;
 
-            // Foydalanuvchi saqlash uchun yangi User obyekti yaratish
-            const user = new User({
-                username,
-                email,
-                password,
-                portfolioLink,
-                role,
-                imageLink
-            });
 
             // Birinchi marta post qilganda foydalanuvchi ma'lumotlarini yuborish
             if (!confirmationCode) {
                 const generatedConfirmationCode = await sendConfirmationEmail(email);
+                await client.set(email, generatedConfirmationCode)
                 return res.status(200).json({
                     success: true,
                     message: "Foydalanuvchi ma'lumotlari yuborildi. Tasdiqlash kodi yuborildi",
@@ -49,12 +43,21 @@ class UserController {
             }
 
             // Tasdiqlash kodi tekshirish
-            if (confirmationCode !== req.body.confirmationCode) {
+            if (confirmationCode !== await client.get(email)) {
                 return res.status(400).json({
                     success: false,
                     error: "Noto'g'ri tasdiqlash kodi"
                 });
             }
+            // Foydalanuvchi saqlash uchun yangi User obyekti yaratish
+            const user = new User({
+                username,
+                email,
+                password: sha256(req.body.password),
+                portfolioLink,
+                role,
+                imageLink
+            });
 
             // Tasdiqlangan foydalanuvchini saqlash
             await user.save();
@@ -206,7 +209,7 @@ class UserController {
                     error: 'User not found'
                 });
             } else {
-                if (user.password === password) {
+                if (user.password === sha256(password)) {
                     res.status(201).json({
                         success: true,
                         token: JWT.SIGN({
@@ -225,6 +228,56 @@ class UserController {
             res.status(500).json({
                 success: false,
                 error: error.message
+            });
+        }
+    }
+   static async forget(req, res) {
+        try {
+            const {
+                email,
+                confirmationCode
+            } = req.body;
+            if (!confirmationCode) {
+                const generatedConfirmationCode = await sendConfirmationEmail(email);
+                await client.set(email, generatedConfirmationCode)
+                return res.status(200).json({
+                    success: true,
+                    message: "Foydalanuvchi ma'lumotlari yuborildi. Tasdiqlash kodi yuborildi",
+                    confirmationCode: generatedConfirmationCode // Tasdiqlash kodi javob qaytariladi
+                });
+            }
+            // Tasdiqlash kodi tekshirish
+            if (confirmationCode !== await client.get(email)) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Noto'g'ri tasdiqlash kodi"
+                });
+            }
+            const user = await User.findOne({
+                email
+            });
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                });
+            }
+            await User.findOneAndUpdate({
+                email
+            }, {
+                password: sha256(req.body.password)
+            })
+            res.status(201).json({
+                success: true,
+                token: JWT.SIGN({
+                    id: user._id
+                }),
+                data: user
+            });
+        } catch (error) {
+            console.log('error :', error);
+            res.status(500).json({
+                error: 'Foydalanuvchi qo\'shishda xatolik yuz berdi'
             });
         }
     }

@@ -43,12 +43,13 @@ class ProductController {
             status: 200,
             message: `${id} - product`,
             success: true,
-            data: { others, data: dataById },
+            data: { others, data: dataById }, 
           })
           .status(200);
       } else if (req.query?.search)   {
-       
-       // const results = await Products.find().populate('technology');
+    
+       const results = await Products.find();
+       console.log('results :', results);
         // results.find({ technology: { $elemMatch: { name: req.query.search } } })
  
         //     // console.log(results);
