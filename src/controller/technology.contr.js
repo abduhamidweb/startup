@@ -1,7 +1,7 @@
 import Technologies from "../schemas/technology.schema.js";
 import Products from "../schemas/product.schema.js";
 import { JWT } from "../utils/jwt.js";
-import {User} from "../schemas/user.schema.js";
+import { User } from "../schemas/user.schema.js";
 
 const errorObj = (err) => {
   return {
@@ -18,9 +18,7 @@ class TechnologyController {
       let { id } = req.params;
       let { name } = req.query;
       if (id) {
-        let data = await Products.find({ technology: id })
-          .populate("technology")
-          .populate("user");
+        let data = await Technologies.findById(id);
         res.send({
           status: 200,
           message: `${id} - technology products`,
@@ -29,17 +27,11 @@ class TechnologyController {
         });
       } else if (name) {
         let findByNameCat = await Technologies.findOne({ name });
-        let allData = await Products.find()
-          .populate("technology")
-          .populate("user");
-        let data = await allData.filter((el) => {
-          return el.technology.name == name;
-        });
         res.send({
           status: 200,
-          message: `${id} - technology products`,
+          message: `${name} - technology products`,
           success: true,
-          data: data,
+          data: findByNameCat,
         });
       } else {
         res.send({
@@ -87,10 +79,16 @@ class TechnologyController {
       if (checkAdmin.role != "admin") {
         throw new Error("Only admin can update!");
       }
-      let updatedTechnology = await Technologies.findByIdAndUpdate(req.params?.id, {
-        name,
-        img_link,
-      });
+      if(!name && !img_link){
+        throw new Error(`Not Found Target!`)
+      }
+      let updatedTechnology = await Technologies.findByIdAndUpdate(
+        req.params?.id,
+        {
+          name,
+          img_link,
+        }
+      );
       console.log(updatedTechnology);
       if (!updatedTechnology) {
         throw new Error(`Not Update technology`);
@@ -114,7 +112,9 @@ class TechnologyController {
       if (checkAdmin.role != "admin") {
         throw new Error("Only admin can delete!");
       }
-      let deletedTechnology = await Technologies.findByIdAndDelete(req.params?.id);
+      let deletedTechnology = await Technologies.findByIdAndDelete(
+        req.params?.id
+      );
       if (!deletedTechnology) {
         throw new Error(`Not Deleted ${req.params?.id} - technology`);
       }

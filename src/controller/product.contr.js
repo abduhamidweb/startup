@@ -131,56 +131,110 @@ class ProductController {
     }
   }
 
+  static async addTechnologyToProduct(req, res) {
+    try {
+      let { product_id } = req.params;
+      let { token } = req.headers;
+      let { id } = JWT.VERIFY(token);
+      let { technology } = req.body;
+      if (!technology) {
+        throw new Error(`you must send technology from request body!`);
+      }
+      let checkTechFromArr = await Products.findById(product_id);
+      if (checkTechFromArr.user != id) {
+        throw new Error(`you cannot update other's product!`);
+      }
+
+      if (checkTechFromArr.technology.includes(technology)) {
+        throw new Error(`This Product already added!`);
+      }
+
+      let updatedTechnology = await Products.findByIdAndUpdate(
+        product_id,
+        { $push: { technology: technology } },
+        { new: true }
+      );
+      res.send({
+        status: 201,
+        message: "OK, added technology",
+        success: true,
+        data: updatedTechnology,
+      });
+    } catch (error) {
+      res.send(errorObj(error));
+    }
+  }
+
+  static async deleteTechnologyToProduct(req, res) {
+    try {
+      let { product_id } = req.params;
+      let { token } = req.headers;
+      let { id } = JWT.VERIFY(token);
+      let { technology } = req.body;
+      if (!technology) {
+        throw new Error(`you must send technology from request body!`);
+      }
+
+      let checkTechFromArr = await Products.findById(product_id);
+      if (checkTechFromArr.user != id) {
+        throw new Error(`you cannot update other's product!`);
+      }
+      if (!checkTechFromArr.technology.includes(technology)) {
+        throw new Error(`Technology Not Found`);
+      }
+
+      let deletedTechnology = await Products.findByIdAndUpdate(
+        product_id,
+        { $pull: { technology: technology } },
+        { new: true }
+      );
+      res.send({
+        status: 200,
+        message: "OK, Deleted",
+        success: true,
+        data: await Products.findById(deletedTechnology._id),
+      });
+    } catch (error) {
+      res.send(errorObj(error));
+    }
+  }
+
   static async updateProduct(req, res) {
-    // try {
-    let { product_id } = req.params;
-    let { token } = req.headers;
-    let { id } = JWT.VERIFY(token);
-    let findProductById = await Products.findById(product_id);
-    if (findProductById.user != id) {
-      throw new Error(`You can not update other people's product!`);
+    try {
+      let { product_id } = req.params;
+      let { token } = req.headers;
+      let { id } = JWT.VERIFY(token);
+      let findProductById = await Products.findById(product_id);
+      if (findProductById.user != id) {
+        throw new Error(`You can not update other people's product!`);
+      }
+      let { name, category, product_link, desc, price, github_link, phone } =
+        req.body;
+      if (
+        !name &&
+        !category &&
+        !product_link &&
+        !desc &&
+        !price &&
+        !github_link &&
+        !phone
+      ) {
+        throw new Error(`You have not send data!`);
+      }
+      let updatedProduct = await Products.findByIdAndUpdate(
+        product_id,
+        { name, category, product_link, desc, price, github_link, phone },
+        { new: true }
+      );
+      res.send({
+        status: 200,
+        message: "Updated successfuly!",
+        success: true,
+        data: updatedProduct,
+      });
+    } catch (error) {
+      res.send(errorObj(error));
     }
-    let {
-      name,
-      technology,
-      category,
-      product_link,
-      desc,
-      price,
-      github_link,
-      phone,
-    } = req.body;
-    if (
-      !name &&
-      !technology &&
-      !category &&
-      !product_link &&
-      !desc &&
-      !price &&
-      !github_link &&
-      !phone
-    ) {
-      throw new Error(`You have not send data!`);
-    }
-    let updatedProduct = await Products.findByIdAndUpdate(product_id, {
-      name,
-      technology,
-      category,
-      product_link,
-      desc,
-      price,
-      github_link,
-      phone,
-    });
-    res.send({
-      status: 200,
-      message: "Updated successfuly!",
-      success: true,
-      data: Products.findById(product_id),
-    });
-    // } catch (error) {
-    //   res.send(errorObj(error));
-    // }
   }
 
   static async deleteProduct(req, res) {
@@ -213,9 +267,3 @@ class ProductController {
 }
 
 export default ProductController;
-
-// let findProductById = await Products.findById('647a144ef322182a0d56ef40');
-
-// console.log(findProductById);
-
-// console.log(await Technologies.find());
