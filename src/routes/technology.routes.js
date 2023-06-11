@@ -4,10 +4,9 @@ import authMiddleware from "../middleware/auth.mddl.js";
 
 const technologyRouter = Router();
 
-technologyRouter.get("/technologies", authMiddleware, TechnologyController.Get);
+technologyRouter.get("/technologies", TechnologyController.Get);
 technologyRouter.get(
   "/technologies/:id",
-  authMiddleware,
   TechnologyController.Get
 );
 technologyRouter.post(

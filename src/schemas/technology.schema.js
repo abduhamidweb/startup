@@ -8,6 +8,7 @@ const technologySchema = new Schema(
     },
     img_link: {
       type: String,
+      required : true
     },
   },
   {

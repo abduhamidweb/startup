@@ -66,6 +66,9 @@ class ProductController {
         let dataById = await Products.findById(id)
           .populate("user")
           .populate("technology");
+        if (dataById == null) {
+          throw new Error(`Not Found ${id} - product!`)
+        }
         let others = await Products.find({
           category: dataById.category
         });
@@ -82,15 +85,14 @@ class ProductController {
           })
           .status(200);
       } else if (req.query?.search) {
-        const results = await Products.find().populate("technology");
-        let searchQuery = req.query.search;
-        const filteredProducts = results.filter((product) => {
-          const technologyNames = product.technology.map((tech) => tech.name);
-          return technologyNames.some((name) =>
-            name.toLowerCase().includes(req.query.search.toLowerCase())
-          );
-        });
-        res.json(filteredProducts);
+        let allProduct = await Products.find().populate('user').populate('technology')
+        let filtered = allProduct.filter(el => el.name.toLocaleLowerCase().includes(req.query.search.toLocaleLowerCase()))
+        res.send({
+          status: 200,
+          message: "Search Result, Searching By Title",
+          success: true,
+          data: filtered
+        })
       } else if (category) {
         let findByCat = await Products.find({
             category
@@ -181,6 +183,109 @@ class ProductController {
     }
   }
 
+  static async addTechnologyToProduct(req, res) {
+    try {
+      let {
+        product_id
+      } = req.params;
+      let {
+        token
+      } = req.headers;
+      let {
+        id
+      } = JWT.VERIFY(token);
+      let findProduct = await Products.findById(product_id)
+
+      let {
+        technology
+      } = req.body;
+      if (!technology) {
+        throw new Error(`you must send technology from request body!`);
+      }
+      if (findProduct == null) {
+        throw new Error(`Not Found ${product_id} - product`)
+      }
+      let checkTechFromArr = await Products.findById(product_id);
+      if (checkTechFromArr.user != id) {
+        throw new Error(`you cannot update other's product!`);
+      }
+      let techns = await Technologies.findById(technology);
+      if (techns == null) {
+        throw new Error(`Not Found ${technology} - technolgy!`)
+      }
+      if (checkTechFromArr.technology.includes(technology)) {
+        throw new Error(`This Product already added!`);
+      }
+
+      let updatedTechnology = await Products.findByIdAndUpdate(
+        product_id, {
+          $push: {
+            technology: technology
+          }
+        }, {
+          new: true
+        }
+      );
+      res.send({
+        status: 201,
+        message: "OK, added technology",
+        success: true,
+        data: updatedTechnology,
+      });
+    } catch (error) {
+      res.send(errorObj(error));
+    }
+  }
+
+  static async deleteTechnologyToProduct(req, res) {
+    try {
+      let {
+        product_id
+      } = req.params;
+      let {
+        token
+      } = req.headers;
+      let {
+        id
+      } = JWT.VERIFY(token);
+      let {
+        technology
+      } = req.body;
+      if (!technology) {
+        throw new Error(`you must send technology from request body!`);
+      }
+
+      let checkTechFromArr = await Products.findById(product_id);
+      if (checkTechFromArr == null) {
+        throw new Error(`Not Found ${product_id} - product`)
+      }
+      if (checkTechFromArr.user != id) {
+        throw new Error(`you cannot update other's product!`);
+      }
+      if (!checkTechFromArr.technology.includes(technology)) {
+        throw new Error(`Technology Not Found`);
+      }
+
+      let deletedTechnology = await Products.findByIdAndUpdate(
+        product_id, {
+          $pull: {
+            technology: technology
+          }
+        }, {
+          new: true
+        }
+      );
+      res.send({
+        status: 200,
+        message: "OK, Deleted",
+        success: true,
+        data: await Products.findById(deletedTechnology._id),
+      });
+    } catch (error) {
+      res.send(errorObj(error));
+    }
+  }
+
   static async updateProduct(req, res) {
     try {
       let {
@@ -193,22 +298,24 @@ class ProductController {
         id
       } = JWT.VERIFY(token);
       let findProductById = await Products.findById(product_id);
+      if (findProductById == null) {
+        throw new Error(`Not Found ${id} - product!`)
+      }
       if (findProductById.user != id) {
         throw new Error(`You can not update other people's product!`);
       }
       let {
         name,
-        technology,
         category,
         product_link,
         desc,
         price,
         github_link,
-        phone,
-      } = req.body;
+        phone
+      } =
+      req.body;
       if (
         !name &&
-        !technology &&
         !category &&
         !product_link &&
         !desc &&
@@ -218,21 +325,24 @@ class ProductController {
       ) {
         throw new Error(`You have not send data!`);
       }
-      let updatedProduct = await Products.findByIdAndUpdate(product_id, {
-        name,
-        technology,
-        category,
-        product_link,
-        desc,
-        price,
-        github_link,
-        phone,
-      });
+      let updatedProduct = await Products.findByIdAndUpdate(
+        product_id, {
+          name,
+          category,
+          product_link,
+          desc,
+          price,
+          github_link,
+          phone
+        }, {
+          new: true
+        }
+      );
       res.send({
         status: 200,
         message: "Updated successfuly!",
         success: true,
-        data: Products.findById(product_id),
+        data: updatedProduct,
       });
     } catch (error) {
       res.send(errorObj(error));
@@ -252,9 +362,9 @@ class ProductController {
         id
       } = JWT.VERIFY(token);
       let findProductById = await Products.findById(product_id);
-      if (!findProductById) {
+      if (findProductById == null) {
         throw new Error(`Not Found ${product_id} - product!`);
-      } 
+      }
       if (findProductById.user != id) {
         throw new Error(`You can not update other people's product!`);
       }
