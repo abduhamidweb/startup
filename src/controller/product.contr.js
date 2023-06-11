@@ -83,6 +83,7 @@ class ProductController {
           .status(200);
       } else if (req.query?.search) {
         const results = await Products.find().populate("technology");
+        let searchQuery = req.query.search;
         const filteredProducts = results.filter((product) => {
           const technologyNames = product.technology.map((tech) => tech.name);
           return technologyNames.some((name) =>
