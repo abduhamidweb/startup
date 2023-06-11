@@ -254,7 +254,7 @@ class ProductController {
       let findProductById = await Products.findById(product_id);
       if (!findProductById) {
         throw new Error(`Not Found ${product_id} - product!`);
-      }
+      } 
       if (findProductById.user != id) {
         throw new Error(`You can not update other people's product!`);
       }
