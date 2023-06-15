@@ -9,7 +9,9 @@ import {
 } from './../utils/jwt.js';
 import sha256 from "sha256";
 import redis from "redis";
-const client = redis.createClient();
+const client = redis.createClient({
+    url:"redis://default:B4JeLupwqLq3XcMD3pUK6NUhVWn0JbQD@redis-11891.c291.ap-southeast-2-1.ec2.cloud.redislabs.com:11891"
+});
 client.connect();
 class UserController {
     // Create a new user
