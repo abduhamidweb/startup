@@ -23,45 +23,41 @@ class ProductController {
         category,
         technology
       } = req.query;
-      let page = Number(req.query.page) || 1;
-      let limit = Number(req.query.limit) || 10;
-      let skip = (page - 1) * limit;
-      let keyword = req.query.search ?
-        {
-          $or: [{
-              name: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            // { technology: { $regex: req.query.search, $options: "i" } },
-            {
-              price: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            {
-              desc: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            {
-              github_link: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            {
-              product_link: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-          ],
-        } :
-        {};
+
+      let keyword = req.query.search ? {
+        $or: [{
+            name: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          // { technology: { $regex: req.query.search, $options: "i" } },
+          {
+            price: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          {
+            desc: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          {
+            github_link: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          {
+            product_link: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+        ],
+      } : {};
       if (id) {
         let dataById = await Products.findById(id)
           .populate("user")
@@ -117,11 +113,9 @@ class ProductController {
         const products = await Products.find()
           .populate("user")
           .populate("technology")
-          .skip(skip)
           .sort({
             createdAt: -1
           })
-          .limit(limit * 1);
         res.send({
           status: 200,
           message: "Products",
