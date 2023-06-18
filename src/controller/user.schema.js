@@ -10,7 +10,7 @@ import {
 import sha256 from "sha256";
 import redis from "redis";
 const client = redis.createClient({
-    url:"redis://default:B4JeLupwqLq3XcMD3pUK6NUhVWn0JbQD@redis-11891.c291.ap-southeast-2-1.ec2.cloud.redislabs.com:11891"
+    url: "redis://default:B4JeLupwqLq3XcMD3pUK6NUhVWn0JbQD@redis-11891.c291.ap-southeast-2-1.ec2.cloud.redislabs.com:11891"
 });
 client.connect();
 class UserController {
@@ -31,8 +31,6 @@ class UserController {
                 imageLink,
                 confirmationCode // Foydalanuvchi kiritgan tasdiqlash kodi
             } = req.body;
-
-
             // Birinchi marta post qilganda foydalanuvchi ma'lumotlarini yuborish
             if (!confirmationCode) {
                 const generatedConfirmationCode = await sendConfirmationEmail(email);
@@ -43,7 +41,6 @@ class UserController {
                     confirmationCode: generatedConfirmationCode // Tasdiqlash kodi javob qaytariladi
                 });
             }
-
             // Tasdiqlash kodi tekshirish
             if (confirmationCode !== await client.get(email)) {
                 return res.status(400).json({
@@ -60,11 +57,9 @@ class UserController {
                 role,
                 imageLink
             });
-
             // Tasdiqlangan foydalanuvchini saqlash
             await user.save();
-
-            // Token yaratish va javob qaytarish
+            // Token yaratish va javob qaytarish 
             res.status(201).json({
                 success: true,
                 token: JWT.SIGN({
@@ -72,7 +67,6 @@ class UserController {
                 }),
                 data: user
             });
-
         } catch (error) {
             res.status(500).json({
                 success: false,
@@ -80,8 +74,6 @@ class UserController {
             });
         }
     }
-
-
     // Get all users
     static async getAllUsers(req, res) {
         try {
@@ -97,7 +89,6 @@ class UserController {
             });
         }
     }
-
     // Get a single user by ID
     static async getUser(req, res) {
         try {
@@ -233,7 +224,7 @@ class UserController {
             });
         }
     }
-   static async forget(req, res) {
+    static async forget(req, res) {
         try {
             const {
                 email,
