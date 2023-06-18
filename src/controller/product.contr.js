@@ -16,9 +16,7 @@ class ProductController {
     try {
       let { id } = req.params;
       let { category, technology } = req.query;
-      let page = Number(req.query.page) || 1;
-      let limit = Number(req.query.limit) || 10;
-      let skip = (page - 1) * limit;
+
       let keyword = req.query.search
         ? {
             $or: [
@@ -73,9 +71,7 @@ class ProductController {
         const products = await Products.find()
           .populate("user")
           .populate("technology")
-          .skip(skip)
           .sort({ createdAt: -1 })
-          .limit(limit * 1);
         res.send({
           status: 200,
           message: "Products",
