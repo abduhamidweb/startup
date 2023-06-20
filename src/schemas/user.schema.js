@@ -1,7 +1,7 @@
 import validator from 'validator';
 import mongoose from "mongoose"
 const userSchema = new mongoose.Schema({
-    username: {
+    username: { 
         type: String,
         required: true,
         minlength: 3,
