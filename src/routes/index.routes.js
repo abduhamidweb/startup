@@ -5,7 +5,7 @@ import technologyRouter from './technology.routes.js'
 import categoryArr from '../utils/categories.data.js';
 const router = express.Router();
 router.use('/api', userRouter)
-router.use('/api', productRouter)
+router.use('/api', productRouter)  
 router.use('/api', technologyRouter)
 router.use('/api/categories', async(req, res)=>{
     try {
