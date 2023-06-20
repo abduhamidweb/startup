@@ -1,6 +1,6 @@
 import {
     User
-} from "../schemas/user.schema.js"
+} from "../schemas/user.schema.js" 
 import {
     sendConfirmationEmail
 } from "../utils/nodemailer.js";
