@@ -378,4 +378,4 @@ class ProductController {
   }
 }
 
-export default ProductController;
+export default ProductController; 
