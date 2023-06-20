@@ -230,6 +230,15 @@ class UserController {
                 email,
                 confirmationCode
             } = req.body;
+               const user = await User.findOne({
+                email
+            });
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                });
+            }
             if (!confirmationCode) {
                 const generatedConfirmationCode = await sendConfirmationEmail(email);
                 await client.set(email, generatedConfirmationCode)
@@ -246,15 +255,7 @@ class UserController {
                     error: "Noto'g'ri tasdiqlash kodi"
                 });
             }
-            const user = await User.findOne({
-                email
-            });
-            if (!user) {
-                res.status(404).json({
-                    success: false,
-                    error: 'User not found'
-                });
-            }
+         
             await User.findOneAndUpdate({
                 email
             }, {
