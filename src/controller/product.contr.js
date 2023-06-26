@@ -24,40 +24,42 @@ class ProductController {
         technology
       } = req.query;
 
-      let keyword = req.query.search ? {
-        $or: [{
-            name: {
-              $regex: req.query.search,
-              $options: "i"
-            }
-          },
-          // { technology: { $regex: req.query.search, $options: "i" } },
-          {
-            price: {
-              $regex: req.query.search,
-              $options: "i"
-            }
-          },
-          {
-            desc: {
-              $regex: req.query.search,
-              $options: "i"
-            }
-          },
-          {
-            github_link: {
-              $regex: req.query.search,
-              $options: "i"
-            }
-          },
-          {
-            product_link: {
-              $regex: req.query.search,
-              $options: "i"
-            }
-          },
-        ],
-      } : {};
+      let keyword = req.query.search ?
+        {
+          $or: [{
+              name: {
+                $regex: req.query.search,
+                $options: "i"
+              }
+            },
+            {
+              price: {
+                $regex: req.query.search,
+                $options: "i"
+              }
+            },
+            // { img_link: { $regex: req.query.search, $options: "i" } },
+            {
+              desc: {
+                $regex: req.query.search,
+                $options: "i"
+              }
+            },
+            {
+              github_link: {
+                $regex: req.query.search,
+                $options: "i"
+              }
+            },
+            {
+              product_link: {
+                $regex: req.query.search,
+                $options: "i"
+              }
+            },
+          ],
+        } :
+        {};
       if (id) {
         let dataById = await Products.findById(id)
           .populate("user")
@@ -139,13 +141,14 @@ class ProductController {
         name,
         technology,
         category,
+        img_link,
         product_link,
         desc,
         price,
         github_link,
         phone,
       } = req.body;
-      if (!name || !technology || !category || !product_link || !phone) {
+      if (!name || !technology || !category || !product_link || !phone || !img_link) {
         throw new Error("Data is incomplated! ❌");
       }
       if (!categoryArr.includes(category)) {
@@ -157,6 +160,7 @@ class ProductController {
         user: id,
         category,
         product_link,
+        img_link,
         desc,
         price,
         github_link,
@@ -305,7 +309,8 @@ class ProductController {
         desc,
         price,
         github_link,
-        phone
+        phone,
+        img_link
       } =
       req.body;
       if (
@@ -314,6 +319,7 @@ class ProductController {
         !product_link &&
         !desc &&
         !price &&
+        !img_link &&
         !github_link &&
         !phone
       ) {
@@ -327,7 +333,8 @@ class ProductController {
           desc,
           price,
           github_link,
-          phone
+          phone,
+          img_link
         }, {
           new: true
         }
@@ -378,4 +385,4 @@ class ProductController {
   }
 }
 
-export default ProductController; 
+export default ProductController;
