@@ -38,7 +38,6 @@ class ProductController {
                 $options: "i"
               }
             },
-            // { img_link: { $regex: req.query.search, $options: "i" } },
             {
               desc: {
                 $regex: req.query.search,
@@ -65,8 +64,28 @@ class ProductController {
           .populate("user")
           .populate("technology");
         if (dataById == null) {
-          throw new Error(`Not Found ${id} - product!`)
+          throw new Error(`Not Found ${id} - product!`);
         }
+
+        let categoryCount = {};
+        if (dataById.category.category) {
+          categoryCount[dataById.category] += 1
+        } else {
+          categoryCount[dataById.category] = 1
+        }
+
+        const technologiesCount = {};
+
+        const techs = dataById.technology;
+        for (let i = 0; i < techs.length; i++) {
+          const techName = techs[i].name;
+          if (technologiesCount.hasOwnProperty(techName)) {
+            technologiesCount[techName]++;
+          } else {
+            technologiesCount[techName] = 1
+          }
+        }
+
         let others = await Products.find({
           category: dataById.category
         });
@@ -76,6 +95,8 @@ class ProductController {
             status: 200,
             message: `${id} - product`,
             success: true,
+            countCategory: categoryCount,
+            countTechnology: technologiesCount,
             data: {
               others,
               data: dataById
@@ -83,14 +104,46 @@ class ProductController {
           })
           .status(200);
       } else if (req.query?.search) {
-        let allProduct = await Products.find().populate('user').populate('technology')
-        let filtered = allProduct.filter(el => el.name.toLocaleLowerCase().includes(req.query.search.toLocaleLowerCase()))
+        let allProduct = await Products.find()
+          .populate("user")
+          .populate("technology");
+
+        let filtered = allProduct.filter((el) =>
+          el.name
+          .toLocaleLowerCase()
+          .includes(req.query.search.toLocaleLowerCase())
+        );
+
+        let categoryCount = {};
+        for (let i = 0; i < filtered.length; i++) {
+          let category = filtered[i];
+          if (categoryCount[category.category]) {
+            categoryCount[category.category] += 1;
+          } else {
+            categoryCount[category.category] = 1;
+          }
+        }
+        const technologiesCount = {};
+        for (let i = 0; i < filtered.length; i++) {
+          const techs = filtered[i].technology;
+          for (let j = 0; j < techs.length; j++) {
+            const techName = techs[j].name;
+            if (technologiesCount.hasOwnProperty(techName)) {
+              technologiesCount[techName]++;
+            } else {
+              technologiesCount[techName] = 1;
+            }
+          }
+        }
+        console.log(technologiesCount);
         res.send({
+          countCategory: categoryCount,
+          countTechnology: technologiesCount,
           status: 200,
           message: "Search Result, Searching By Title",
           success: true,
-          data: filtered
-        })
+          data: filtered,
+        });
       } else if (category) {
         let findByCat = await Products.find({
             category
@@ -100,26 +153,67 @@ class ProductController {
           .sort({
             createdAt: -1
           });
-        res.send(findByCat);
-      } else if (technology) {
-        let findByTech = await Products.find({
-            technology
-          })
-          .populate("user")
-          .populate("technology")
-          .sort({
-            createdAt: -1
-          });
-        res.send(findByTech);
+        let categoryCount = {};
+        for (let i = 0; i < findByCat.length; i++) {
+          let category = findByCat[i];
+          if (categoryCount[category.category]) {
+            categoryCount[category.category] += 1;
+          } else {
+            categoryCount[category.category] = 1;
+          }
+        }
+        const technologiesCount = {};
+        for (let i = 0; i < findByCat.length; i++) {
+          const techs = findByCat[i].technology;
+          for (let j = 0; j < techs.length; j++) {
+            const techName = techs[j].name;
+            if (technologiesCount.hasOwnProperty(techName)) {
+              technologiesCount[techName]++;
+            } else {
+              technologiesCount[techName] = 1;
+            }
+          }
+        }
+        res.send({
+          status: 200,
+          message: `${category} - products`,
+          countCategory: categoryCount,
+          countTechnology: technologiesCount,
+          success: true,
+          data: findByCat
+        });
       } else {
         const products = await Products.find()
           .populate("user")
           .populate("technology")
           .sort({
             createdAt: -1
-          })
+          });
+        let categoryCount = {};
+        for (let i = 0; i < products.length; i++) {
+          let category = products[i];
+          if (categoryCount[category.category]) {
+            categoryCount[category.category] += 1;
+          } else {
+            categoryCount[category.category] = 1;
+          }
+        }
+        const technologiesCount = {};
+        for (let i = 0; i < products.length; i++) {
+          const techs = products[i].technology;
+          for (let j = 0; j < techs.length; j++) {
+            const techName = techs[j].name;
+            if (technologiesCount.hasOwnProperty(techName)) {
+              technologiesCount[techName]++;
+            } else {
+              technologiesCount[techName] = 1;
+            }
+          }
+        }
         res.send({
           status: 200,
+          countCategory: categoryCount,
+          countTechnology: technologiesCount,
           message: "Products",
           data: products,
           success: true,
@@ -148,7 +242,14 @@ class ProductController {
         github_link,
         phone,
       } = req.body;
-      if (!name || !technology || !category || !product_link || !phone || !img_link) {
+      if (
+        !name ||
+        !technology ||
+        !category ||
+        !product_link ||
+        !phone ||
+        !img_link
+      ) {
         throw new Error("Data is incomplated! ❌");
       }
       if (!categoryArr.includes(category)) {
@@ -192,7 +293,7 @@ class ProductController {
       let {
         id
       } = JWT.VERIFY(token);
-      let findProduct = await Products.findById(product_id)
+      let findProduct = await Products.findById(product_id);
 
       let {
         technology
@@ -201,7 +302,7 @@ class ProductController {
         throw new Error(`you must send technology from request body!`);
       }
       if (findProduct == null) {
-        throw new Error(`Not Found ${product_id} - product`)
+        throw new Error(`Not Found ${product_id} - product`);
       }
       let checkTechFromArr = await Products.findById(product_id);
       if (checkTechFromArr.user != id) {
@@ -209,7 +310,7 @@ class ProductController {
       }
       let techns = await Technologies.findById(technology);
       if (techns == null) {
-        throw new Error(`Not Found ${technology} - technolgy!`)
+        throw new Error(`Not Found ${technology} - technolgy!`);
       }
       if (checkTechFromArr.technology.includes(technology)) {
         throw new Error(`This Product already added!`);
@@ -255,7 +356,7 @@ class ProductController {
 
       let checkTechFromArr = await Products.findById(product_id);
       if (checkTechFromArr == null) {
-        throw new Error(`Not Found ${product_id} - product`)
+        throw new Error(`Not Found ${product_id} - product`);
       }
       if (checkTechFromArr.user != id) {
         throw new Error(`you cannot update other's product!`);
@@ -297,7 +398,7 @@ class ProductController {
       } = JWT.VERIFY(token);
       let findProductById = await Products.findById(product_id);
       if (findProductById == null) {
-        throw new Error(`Not Found ${id} - product!`)
+        throw new Error(`Not Found ${id} - product!`);
       }
       if (findProductById.user != id) {
         throw new Error(`You can not update other people's product!`);
@@ -310,9 +411,8 @@ class ProductController {
         price,
         github_link,
         phone,
-        img_link
-      } =
-      req.body;
+        img_link,
+      } = req.body;
       if (
         !name &&
         !category &&
@@ -334,7 +434,7 @@ class ProductController {
           price,
           github_link,
           phone,
-          img_link
+          img_link,
         }, {
           new: true
         }
