@@ -69,7 +69,7 @@ class TechnologyController {
         // Teknoloji dizisini döngüleyerek count özelliğini ekleyin
         technology = technology.map(tech => {
           const techName = tech.name;
-          tech.__v = technologyNames[techName] || 0;
+          tech.count = technologyNames[techName] || 0;
           return tech;
         });
 

@@ -10,6 +10,9 @@ const technologySchema = new Schema(
       type: String,
       required : true
     },
+    count:{
+      type: Number
+    }
   },
   {
     timestamps: true,
