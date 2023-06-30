@@ -1,4 +1,6 @@
-import { Router } from "express";
+import {
+  Router
+} from "express";
 import authMiddleware from "../middleware/auth.mddl.js";
 import ProductController from "../controller/product.contr.js";
 

@@ -7,5 +7,5 @@ const router = express.Router();
 router.use('/api', userRouter)
 router.use('/api', productRouter)
 router.use('/api', technologyRouter)
-router.use('/api', categories)
+router.use('/api/categories', categories)
 export default router;
