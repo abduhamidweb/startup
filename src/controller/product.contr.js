@@ -12,8 +12,20 @@ const errorObj = (err) => {
     success: false,
   };
 };
-
 class ProductController {
+  static async getProductMyOwn(req, res) {
+    try {
+      const token = req.headers.token;
+      const id = JWT.VERIFY(token).id;
+      let product = await Products.find({
+        user: id
+      })
+      res.send(product)
+    } catch (error) {
+      console.log('error :', error);
+
+    }
+  }
   static async getProduct(req, res) {
     try {
       let {
@@ -24,41 +36,39 @@ class ProductController {
         technology
       } = req.query;
 
-      let keyword = req.query.search ?
-        {
-          $or: [{
-              name: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            {
-              price: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            {
-              desc: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            {
-              github_link: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-            {
-              product_link: {
-                $regex: req.query.search,
-                $options: "i"
-              }
-            },
-          ],
-        } :
-        {};
+      let keyword = req.query.search ? {
+        $or: [{
+            name: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          {
+            price: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          {
+            desc: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          {
+            github_link: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+          {
+            product_link: {
+              $regex: req.query.search,
+              $options: "i"
+            }
+          },
+        ],
+      } : {};
       if (id) {
         let dataById = await Products.findById(id)
           .populate("user")

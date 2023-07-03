@@ -7,6 +7,7 @@ import ProductController from "../controller/product.contr.js";
 const productRouter = Router();
 
 productRouter.get("/products", ProductController.getProduct);
+productRouter.get("/productsmyown",authMiddleware, ProductController.getProductMyOwn);
 productRouter.get("/products/:id", ProductController.getProduct);
 productRouter.post("/products", authMiddleware, ProductController.addProduct);
 productRouter.post(
