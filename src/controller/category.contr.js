@@ -31,6 +31,7 @@ class CategoryController {
                     const count = products.filter((product) => product.category.toLowerCase() === category.categoryname.toLowerCase()).length;
                     result.push({
                         category: category.categoryname,
+                        id:category._id,
                         count,
                     });
                 });
