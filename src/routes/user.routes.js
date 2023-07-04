@@ -15,6 +15,7 @@ router.get('/users', UserController.getAllUsers);
 
 // Get a single user by ID
 router.get('/users/:id', UserController.getUser);
+router.get('/usersown', authMiddleware, UserController.getUserOwn);
 
 // Update a user by ID
 router.put('/users/:id', authMiddleware, UserController.updateUser);

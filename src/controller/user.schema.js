@@ -112,7 +112,29 @@ class UserController {
             });
         }
     }
-
+  static async getUserOwn(req, res) {
+      try {
+          let token = req.headers.token
+          const id = JWT.VERIFY(token).id;
+          const user = await User.find({_id:id});
+          if (!user) {
+              res.status(404).json({
+                  success: false,
+                  error: 'User not found'
+              });
+          } else {
+              res.status(200).json({
+                  success: true,
+                  data: user
+              });
+          }
+      } catch (error) {
+          res.status(500).json({
+              success: false,
+              error: error.message
+          });
+      }
+  }
     // Update a user by ID
     static async updateUser(req, res) {
         try {
