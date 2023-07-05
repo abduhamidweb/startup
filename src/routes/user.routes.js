@@ -18,7 +18,7 @@ router.get('/users/:id', UserController.getUser);
 router.get('/usersown', authMiddleware, UserController.getUserOwn);
 
 // Update a user by ID
-router.put('/users/:id', authMiddleware, UserController.updateUser);
+router.put('/users', authMiddleware, UserController.updateUser);
 
 // Delete a user by ID
 router.delete('/users/:id', authMiddleware, UserController.deleteUser);

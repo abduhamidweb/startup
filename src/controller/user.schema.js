@@ -139,14 +139,14 @@ class UserController {
     static async updateUser(req, res) {
         try {
             const token = req.headers.token;
-            let usertokenId = JWT.VERIFY(token).id
-            const userId = req.params.id;
-            if (usertokenId != userId) {
-                res.status(404).json({
-                    success: false,
-                    error: 'you have not authenticated or you will do cheating'
-                });
-            }
+            let usertokenId = JWT.VERIFY(token).id;
+            // const userId = req.params.id;
+            // if (usertokenId != userId) {
+            //     res.status(404).json({
+            //         success: false,
+            //         error: 'you have not authenticated or you will do cheating'
+            //     });
+            // }
             const updatedUserData = req.body;
             const user = await User.findByIdAndUpdate(usertokenId, updatedUserData, {
                 new: true
