@@ -43,11 +43,20 @@ class TechnologyController {
         if (findByNameCat == null) {
           throw new Error(`Qanday Yozilgan bo'lsa shunday filter qiling, katta yoki kichik harifiga ham e'tibor bering, to'liq yozing!`)
         }
+        let data = await Products.find().populate("technology");
         res.send({
           status: 200,
           message: `${name} - technology products`,
           success: true,
-          data: findByNameCat,
+          data: data.map((item) => {
+            return item.technology.map((techName) => {
+              if (techName.name == findByNameCat.name) {
+                return item;
+              }
+            })
+          }).flat().filter(function (element) {
+            return element !== null && element !== undefined;
+          })
         });
       } else {
         let technology = await Technologies.find();
