@@ -28,6 +28,7 @@ class UserController {
                 email,
                 portfolioLink,
                 role,
+                password,
                 imageLink,
                 confirmationCode // Foydalanuvchi kiritgan tasdiqlash kodi
             } = req.body;
@@ -52,7 +53,7 @@ class UserController {
             const user = new User({
                 username,
                 email,
-                password: sha256(req.body.password),
+                password,
                 portfolioLink,
                 role,
                 imageLink
@@ -119,13 +120,12 @@ class UserController {
             let user = await User.find({
                 _id: id
             });
-            if (!user) {
+            if (!user.length) {
                 res.status(404).json({
                     success: false,
                     error: 'User not found'
                 });
             } else {
-                user.password = sha256(user.password);
                 res.status(200).json({
                     success: true,
                     data: user
@@ -227,7 +227,7 @@ class UserController {
                     error: 'User not found'
                 });
             } else {
-                if (user.password === sha256(password)) {
+                if (user.password ===password) {
                     res.status(201).json({
                         success: true,
                         token: JWT.SIGN({
@@ -284,7 +284,7 @@ class UserController {
             await User.findOneAndUpdate({
                 email
             }, {
-                password: sha256(req.body.password)
+                password,
             })
             res.status(201).json({
                 success: true,
