@@ -274,7 +274,6 @@ class ProductController {
         return res.status(400).json({
           error: 'Noto\'g\'ri img_link URL'
         });
-
       }
       if (
         !name ||
@@ -456,6 +455,29 @@ class ProductController {
       ) {
         throw new Error(`You have not send data!`);
       }
+          if (!validator.isMobilePhone(phone)) {
+            return res.status(400).json({
+              error: 'Noto\'g\'ri telefon raqami formati'
+            });
+          }
+          if (!validator.isURL(product_link)) {
+            return res.status(400).json({
+              error: 'Noto\'g\'ri product_link URL'
+            });
+          }
+          if (github_link) {
+            if (!validator.isURL(github_link)) {
+              return res.status(400).json({
+                error: 'Noto\'g\'ri github_link URL'
+              });
+            }
+          }
+
+          if (!validator.isURL(img_link)) {
+            return res.status(400).json({
+              error: 'Noto\'g\'ri img_link URL'
+            });
+          }
       let updatedProduct = await Products.findByIdAndUpdate(
         product_id, {
           name,
