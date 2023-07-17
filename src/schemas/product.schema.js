@@ -46,6 +46,7 @@ const ProductSchema = new Schema({
   },
   phone_number: {
     type: String,
+    
     $regex: "+3367197",
     $options: "i",
     $in: [/^\+?[\d\. ]+/],
