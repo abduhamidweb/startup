@@ -125,13 +125,7 @@ class UserController {
                     error: 'User not found'
                 });
             } else {
-               const passwordMatches = user.password === sha256(user.password);
-               if (!passwordMatches) {
-                   return res.status(401).json({
-                       success: false,
-                       error: 'Incorrect password'
-                   });
-               }
+                user.password = sha256(user.password);
                 res.status(200).json({
                     success: true,
                     data: user
