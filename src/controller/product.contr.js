@@ -4,7 +4,7 @@ import {
 import Products from "../schemas/product.schema.js";
 import Technologies from "../schemas/technology.schema.js";
 import categoryArr from "../utils/categories.data.js";
-
+import validator from 'validator';
 const errorObj = (err) => {
   return {
     status: 400,
@@ -252,6 +252,23 @@ class ProductController {
         github_link,
         phone,
       } = req.body;
+      if (!validator.isMobilePhone(phone)) {
+        return res.status(400).json({
+          error: 'Noto\'g\'ri telefon raqami formati'
+        });
+      }
+      if (!validator.isURL(product_link)) {
+        return res.status(400).json({
+          error: 'Noto\'g\'ri product_link URL'
+        });
+      }
+
+      if (!validator.isURL(img_link)) {
+        return res.status(400).json({
+          error: 'Noto\'g\'ri img_link URL'
+        });
+
+      }
       if (
         !name ||
         !technology ||
@@ -261,9 +278,6 @@ class ProductController {
         !img_link
       ) {
         throw new Error("Data is incomplated! ❌");
-      }
-      if (!categoryArr.includes(category)) {
-        throw new Error(`Invalid category!`);
       }
       let newProduct = await Products.create({
         name,

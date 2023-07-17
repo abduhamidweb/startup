@@ -1,6 +1,6 @@
 import {
     User
-} from "../schemas/user.schema.js"  
+} from "../schemas/user.schema.js"
 import {
     sendConfirmationEmail
 } from "../utils/nodemailer.js";
@@ -112,29 +112,38 @@ class UserController {
             });
         }
     }
-  static async getUserOwn(req, res) {
-      try {
-          let token = req.headers.token
-          const id = JWT.VERIFY(token).id;
-          const user = await User.find({_id:id});
-          if (!user) {
-              res.status(404).json({
-                  success: false,
-                  error: 'User not found'
-              });
-          } else {
-              res.status(200).json({
-                  success: true,
-                  data: user
-              });
-          }
-      } catch (error) {
-          res.status(500).json({
-              success: false,
-              error: error.message
-          });
-      }
-  }
+    static async getUserOwn(req, res) {
+        try {
+            let token = req.headers.token
+            const id = JWT.VERIFY(token).id;
+            let user = await User.find({
+                _id: id
+            });
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                });
+            } else {
+               const passwordMatches = user.password === sha256(user.password);
+               if (!passwordMatches) {
+                   return res.status(401).json({
+                       success: false,
+                       error: 'Incorrect password'
+                   });
+               }
+                res.status(200).json({
+                    success: true,
+                    data: user
+                });
+            }
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
     // Update a user by ID
     static async updateUser(req, res) {
         try {
@@ -252,7 +261,7 @@ class UserController {
                 email,
                 confirmationCode
             } = req.body;
-               const user = await User.findOne({
+            const user = await User.findOne({
                 email
             });
             if (!user) {
@@ -277,7 +286,7 @@ class UserController {
                     error: "Noto'g'ri tasdiqlash kodi"
                 });
             }
-         
+
             await User.findOneAndUpdate({
                 email
             }, {
