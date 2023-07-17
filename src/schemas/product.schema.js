@@ -35,6 +35,9 @@ const ProductSchema = new Schema({
   desc: {
     type: String,
   },
+  download: {
+    type:Boolean,
+  },
   price: {
     type: String,
   },

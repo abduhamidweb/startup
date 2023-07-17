@@ -252,6 +252,8 @@ class ProductController {
         github_link,
         phone,
       } = req.body;
+      let isGithubLinkAvailable = !!github_link;
+
       if (!validator.isMobilePhone(phone)) {
         return res.status(400).json({
           error: 'Noto\'g\'ri telefon raqami formati'
@@ -293,6 +295,7 @@ class ProductController {
         product_link,
         img_link,
         desc,
+        download: isGithubLinkAvailable,
         price,
         github_link,
         phone_number: phone,
@@ -443,6 +446,8 @@ class ProductController {
         phone,
         img_link,
       } = req.body;
+      let isGithubLinkAvailable = !!github_link;
+
       if (
         !name &&
         !category &&
@@ -484,6 +489,7 @@ class ProductController {
           category,
           product_link,
           desc,
+          download:isGithubLinkAvailable,
           price,
           github_link,
           phone,
